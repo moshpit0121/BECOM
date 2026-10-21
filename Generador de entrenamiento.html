@@ -1,0 +1,271 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Generador de entrenamiento</title>
+<style>
+:root{--bg:#f5f7f4;--cd:#fff;--tx:#1b231f;--mu:#5b6a62;--ac:#2a7a56;--a2:#e4f1ea;--bd:#d9e0db;--wa:#fff3d1;--wt:#5a4300;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111815;--cd:#1a231f;--tx:#e8efea;--mu:#9baba2;--ac:#5fc795;--a2:#223b2e;--bd:#2e3b34;--wa:#3a3015;--wt:#f2d98a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111815;--cd:#1a231f;--tx:#e8efea;--mu:#9baba2;--ac:#5fc795;--a2:#223b2e;--bd:#2e3b34;--wa:#3a3015;--wt:#f2d98a;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:860px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:1.7rem;margin:.2em 0}h2{font-size:1.15rem;margin:0 0 10px}h3{margin:0 0 6px}
+p.s{color:var(--mu);margin:0 0 16px}
+.c{background:var(--cd);border:1px solid var(--bd);border-radius:14px;padding:16px;margin:14px 0}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+label.f{display:block;font-size:.85rem;color:var(--mu)}
+input,select,textarea{width:100%;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);font:inherit;margin-top:4px}
+.ch{display:flex;flex-wrap:wrap;gap:8px}
+.ch label{cursor:pointer}.ch input{display:none}
+.ch span{display:inline-block;padding:8px 13px;border:1px solid var(--bd);border-radius:99px;background:var(--bg);font-size:.92rem}
+.ch input:checked+span{background:var(--ac);color:#fff;border-color:var(--ac)}
+.ch input:focus-visible+span{outline:2px solid var(--ac);outline-offset:2px}
+button{font:inherit;cursor:pointer;border:1px solid var(--ac);background:var(--ac);color:#fff;padding:12px 20px;border-radius:12px;font-weight:600}
+button.o{background:none;color:var(--ac)}
+.er{color:#c0392b;font-weight:600;margin:8px 0}
+.w{background:var(--wa);color:var(--wt);border-radius:10px;padding:10px 12px;margin:8px 0;font-size:.92rem}
+.k{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.k div{background:var(--a2);border-radius:10px;padding:10px}.k b{display:block;font-size:1.3rem}.k small{color:var(--mu)}
+.tb{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:560px;font-size:.92rem}
+th,td{text-align:left;padding:8px;border-bottom:1px solid var(--bd);vertical-align:top}th{color:var(--mu);font-weight:600}
+.tabs{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}.tabs button{padding:8px 14px}
+.tabs button:not(.on){background:none;color:var(--ac)}
+.tag{font-size:.78rem;color:var(--mu)}
+.lk{padding:0;border:0;text-align:left;font-weight:600;background:none;color:var(--ac);text-decoration:underline dotted}
+dialog{background:var(--cd);color:var(--tx);border:1px solid var(--bd);border-radius:14px;width:min(540px,92%);padding:18px;max-height:85vh;overflow:auto}dialog::backdrop{background:#0008}
+dialog h4{margin:12px 0 2px;color:var(--ac)}dialog p{margin:0}dialog a{color:var(--ac);margin-right:12px;font-weight:600}
+@media print{form,.tabs,.np{display:none!important}}
+</style></head><body><main>
+<h1>Generador de entrenamiento</h1>
+<p class="s">Responde unas preguntas y obtén un plan personalizado: series, repeticiones, carga sugerida y cuándo cambiar de rutina.</p>
+<form id="F" onsubmit="return false">
+<div class="c"><h2>1. Sobre ti</h2><div class="g">
+<label class="f">Género<select id="gen"></select></label>
+<label class="f" id="refw" hidden>Referencia para estimar tu composición corporal<select id="ref"><option value="avg">Promedio (recomendado)</option><option value="m">Fórmula femenina</option><option value="h">Fórmula masculina</option></select></label>
+<label class="f">Edad (años)<input id="age" type="number" min="14" max="90" value="30"></label>
+<label class="f">Peso (kg)<input id="w" type="number" min="30" max="250" step="0.1" value="70"></label>
+<label class="f">Altura (m)<input id="h" type="number" min="1.2" max="2.3" step="0.01" value="1.70"></label>
+<label class="f">Experiencia entrenando<select id="lv"><option value="1">Principiante (menos de 6 meses)</option><option value="2">Intermedio (6 meses a 2 años)</option><option value="3">Avanzado (más de 2 años)</option></select></label></div>
+<h3 style="margin-top:14px">Afecciones o enfermedades</h3><div class="ch" id="cond"></div>
+<label class="f" style="margin-top:8px">Otras (opcional)<input id="oth" placeholder="Ej.: cirugía reciente, fibromialgia…"></label></div>
+<div class="c"><h2>2. Objetivos <small class="tag">(elige uno o más; el primero es el principal)</small></h2><div class="ch" id="goal"></div></div>
+<div class="c"><h2>3. Zonas a trabajar</h2><div class="ch" id="parts"></div></div>
+<div class="c"><h2>4. Días por semana</h2><div class="ch" id="days"></div></div>
+<div class="c"><h2>5. Material disponible</h2><div class="ch" id="eq"></div></div>
+<div class="er" id="err"></div><button id="go">Generar rutina</button></form>
+<div id="out"></div></main>
+<dialog id="dl"><div id="dc"></div><p style="margin-top:14px"><button class="o" onclick="dl.close()">Cerrar</button></p></dialog>
+<script>
+const $=s=>document.querySelector(s);
+const O={gen:[["m","Mujer"],["h","Hombre"],["nb","No binario"],["o","Otro / prefiero no decirlo"]],
+cond:[["rodilla","Rodilla"],["lumbar","Lumbar / espalda baja"],["hombro","Hombro"],["hta","Hipertensión"],["cardio","Afección cardíaca"],["diab","Diabetes"],["asma","Asma"],["osteo","Osteoporosis"],["emb","Embarazo / posparto"],["horm","Terapia hormonal"]],
+goal:[["peso","Perder peso"],["masa","Aumentar masa muscular"],["fuerza","Incrementar fuerza"],["mov","Mejorar movilidad"],["res","Mejorar resistencia"],["salud","Salud general y postura"]],
+parts:[["full","Cuerpo completo"],["gluteos","Glúteos"],["piernas","Piernas"],["pecho","Pecho"],["espalda","Espalda"],["hombros","Hombros"],["brazos","Brazos"],["core","Core / abdomen"],["movilidad","Movilidad"]],
+days:[1,2,3,4,5,6].map(d=>[d,d+(d>1?" días":" día")]),
+eq:[["c","Peso corporal"],["m","Mancuernas"],["k","Pesas rusas"],["g","Bandas elásticas"],["b","Barra y discos"],["q","Máquinas / gimnasio"]]};
+const chips=(id,l,type)=>$("#"+id).innerHTML=l.map(([v,t])=>`<label><input type="${type}" name="${id}" value="${v}"><span>${t}</span></label>`).join("");
+chips("cond",O.cond,"checkbox");chips("goal",O.goal,"checkbox");chips("parts",O.parts,"checkbox");chips("days",O.days,"radio");chips("eq",O.eq,"checkbox");
+$("#gen").innerHTML=O.gen.map(([v,t])=>`<option value="${v}">${t}</option>`).join("");
+$("#gen").onchange=()=>$("#refw").hidden=["m","h"].includes($("#gen").value);$("#gen").onchange();
+const vals=n=>[...document.querySelectorAll(`input[name=${n}]:checked`)].map(i=>i.value);
+$("#goal").onchange=e=>{};// orden de selección = prioridad
+let gOrder=[];$("#goal").addEventListener("change",e=>{const v=e.target.value;gOrder=gOrder.filter(x=>x!=v);if(e.target.checked)gOrder.push(v)});
+// nombre|zonas|material|nivel|factor carga (x masa magra)|evitar
+const D=`Sentadilla al aire|piernas|c|1|0|
+Sentadilla a banco|piernas|c|1|0|
+Zancada atrás|piernas,gluteos|c|2|0|knee
+Sentadilla goblet|piernas|k|1|.3|
+Sentadilla goblet con mancuerna|piernas|m|1|.3|
+Sentadilla búlgara|piernas,gluteos|m|3|.2|knee
+Sentadilla con barra|piernas|b|3|.9|back
+Prensa de piernas|piernas|q|1|1.4|
+Extensión de cuádriceps|piernas|q|1|.5|knee
+Curl femoral en máquina|piernas|q|1|.4|
+Peso muerto rumano con mancuernas|piernas,gluteos|m|2|.3|back
+Peso muerto rumano con barra|piernas,gluteos|b|2|.7|back
+Peso muerto con barra|espalda,piernas|b|3|1.2|back
+Puente de glúteos|gluteos|c|1|0|
+Hip thrust con mancuerna|gluteos|m|1|.5|
+Hip thrust con kettlebell|gluteos|k|1|.5|
+Hip thrust con barra|gluteos|b|2|1|
+Patada de glúteo con banda|gluteos|g|1|0|
+Patada de glúteo en polea|gluteos|q|1|.15|
+Abducción de cadera en máquina|gluteos|q|1|.6|
+Caminata lateral con banda|gluteos|g|1|0|
+Swing con kettlebell|gluteos,piernas|k|2|.35|back
+Flexiones inclinadas (manos en banco)|pecho|c|1|0|
+Flexiones|pecho|c|2|0|sh
+Press de pecho en suelo con mancuernas|pecho|m|1|.25|
+Press de banca con barra|pecho|b|2|.75|sh
+Press de pecho en máquina|pecho|q|1|.6|
+Aperturas con mancuernas|pecho|m|2|.12|sh
+Press de pecho con banda|pecho|g|1|0|
+Remo con mancuerna|espalda|m|1|.3|
+Remo con kettlebell|espalda|k|1|.3|
+Remo con banda|espalda|g|1|0|
+Jalón al pecho|espalda|q|1|.7|
+Remo en máquina|espalda|q|1|.7|
+Remo con barra|espalda|b|3|.6|back
+Dominadas con banda|espalda|g|2|0|sh
+Superman|espalda|c|1|0|prone
+Press militar con mancuernas|hombros|m|1|.2|sh
+Elevaciones laterales|hombros|m|1|.07|
+Face pull con banda|hombros|g|1|0|
+Pike push-up|hombros|c|2|0|sh
+Press de hombros en máquina|hombros|q|1|.5|sh
+Curl de bíceps con mancuernas|brazos|m|1|.12|
+Curl martillo con kettlebell|brazos|k|1|.13|
+Curl de bíceps con banda|brazos|g|1|0|
+Fondos en silla|brazos|c|2|0|sh
+Extensión de tríceps en polea|brazos|q|1|.3|
+Extensión de tríceps con banda|brazos|g|1|0|
+Plancha|core|c|1|0|
+Dead bug|core|c|1|0|
+Bird dog|core|c|1|0|
+Crunch|core|c|1|0|flex,sup
+Elevación de piernas|core|c|2|0|back,sup,flex
+Pallof press con banda|core|g|1|0|
+Plancha lateral|core|c|2|0|sh
+Leñador con mancuerna|core|m|2|.1|back
+Cat-cow|movilidad|c|1|0|
+Rotación torácica en cuadrupedia|movilidad|c|1|0|
+Estiramiento de flexores de cadera|movilidad|c|1|0|knee
+Posición 90/90 de cadera|movilidad|c|1|0|
+Movilidad de hombros con banda|movilidad|g|1|0|
+Sentadilla profunda con apoyo|movilidad|c|1|0|`.split("\n").map(l=>{const[n,p,e,v,f,a]=l.split("|");return{n,p:p.split(","),e,l:+v,f:+f,a:a?a.split(","):[]}});
+const SC={fuerza:[4,"5-6",150,2],masa:[3,"8-12",90,2],peso:[3,"12-15",50,2],res:[3,"15-20",40,2],mov:[2,"10 lentas",30,4],salud:[3,"10-12",60,3]};
+const RK=["piernas","gluteos","espalda","pecho","hombros","brazos","core"],CP={pecho:"espalda",espalda:"pecho",piernas:"gluteos",gluteos:"piernas",hombros:"espalda",brazos:"espalda",core:"gluteos"};
+function pick(p,S,used,cnt,v){const heavy=S.goals.some(g=>["fuerza","masa"].includes(g));
+ const c=D.filter(x=>x.p.includes(p)&&x.l<=S.lv&&!used.has(x.n)&&!x.a.some(t=>S.av.has(t))&&(x.e=="c"||S.eq.has(x.e)));
+ const sc=x=>(heavy&&x.e!="c"?2:0)+x.l*.1+(p=="movilidad"?0:0);c.sort((a,b)=>sc(b)-sc(a));
+ if(!c.length)return null;cnt[p]=(cnt[p]||0)+1;const x=c[(cnt[p]-1+v*2)%Math.min(c.length,4)];used.add(x.n);return x}
+function load(x,S){if(x.e=="c")return"Peso corporal";if(x.e=="g")return"Banda ligera-media";
+ let w=x.f*S.lbm*[0,.65,.85,1][S.lv]*(S.age>=60?.8:S.age>=50?.9:1);const st={b:2.5,q:5,k:4,m:1}[x.e];w=Math.max(st,Math.round(w/st)*st);if(x.e=="b")w=Math.max(20,w);
+ return w+" kg"+({m:" por mano",k:" (1 pesa)",b:" en total con barra"}[x.e]||"")}
+function build(S,v){let P=S.parts.includes("full")?RK.slice(0,6):RK.filter(p=>S.parts.includes(p));
+ if(v&&!S.parts.includes("full"))P.slice().forEach(p=>{if(!P.includes(CP[p]))P.push(CP[p])});
+ if(!P.length)P=["core","gluteos"];const n=P.length,d=S.d,per=Math.min(n,6,d<=3?6:Math.max(2,Math.ceil(n*2/d))),epp=Math.min(4,Math.max(1,Math.round(6/per))),cnt={},days=[];
+ for(let k=0;k<d;k++){const used=new Set(),ex=[];const ps=[...Array(per)].map((_,j)=>P[(k*per+j)%n]);
+  if(S.parts.includes("movilidad")||S.goals[0]=="mov"){const m=pick("movilidad",S,used,cnt,v);if(m)ex.push(m)}
+  ps.forEach(p=>{for(let i=0;i<epp;i++){const x=pick(p,S,used,cnt,v);if(x)ex.push(x)}});
+  days.push({ps,rows:ex.map((x,i)=>{const g=x.p[0]=="movilidad"?"mov":(i==0||ex.length<3?S.goals[0]:S.goals[1]||S.goals[0]);let[s,r,rt,rir]=SC[g];
+   if(S.lv==1&&g!="mov")s=Math.max(2,s-1);if(S.caut&&g=="fuerza"){r="8-10";rt=120;rir=3}
+   if(/Plancha|Dead|Bird|pallof/i.test(x.n)&&x.p[0]=="core")r="30-45 s";
+   return{x,s,r,rt,rir,l:load(x,S)}})})}
+ return days}
+const WD={1:["Miércoles"],2:["Lunes","Jueves"],3:["Lunes","Miércoles","Viernes"],4:["Lunes","Martes","Jueves","Viernes"],5:["Lunes","Martes","Miércoles","Viernes","Sábado"],6:["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"]};
+const nm=(a,l)=>l.find(x=>x[0]==a)[1];
+function go(){const e=$("#err");e.textContent="";const g=$("#gen").value,age=+$("#age").value,w=+$("#w").value,h=+$("#h").value,lv=+$("#lv").value,
+ goals=gOrder.filter(x=>vals("goal").includes(x)),parts=vals("parts"),d=+(vals("days")[0]||0),eqv=vals("eq"),cond=vals("cond");
+ if(!(age>=14&&age<=90&&w>=30&&w<=250&&h>=1.2&&h<=2.3))return e.textContent="Revisa edad, peso y altura.";
+ if(!goals.length||!parts.length||!d||!eqv.length)return e.textContent="Elige al menos un objetivo, una zona, los días y el material.";
+ const H=h*100,bm=.407*w+.267*H-19.2,bf=.252*w+.473*H-48.3,sx=["m","h"].includes(g)?g:$("#ref").value;
+ let lbm=sx=="h"?bm:sx=="m"?bf:(bm+bf)/2;lbm=Math.min(.9*w,Math.max(.4*w,lbm));const mus=lbm*.5,bmi=w/(h*h),fat=(w-lbm)/w*100;
+ const av=new Set();if(cond.includes("rodilla"))av.add("knee");if(cond.includes("lumbar"))av.add("back");if(cond.includes("hombro"))av.add("sh");
+ if(cond.includes("osteo")){av.add("flex")}if(cond.includes("emb")){["sup","prone","flex"].forEach(t=>av.add(t))}
+ const caut=cond.some(c=>["hta","cardio","emb","osteo"].includes(c))||age>=65;
+ const eq=new Set(eqv),S={goals,parts,d,eq,lv,lbm,age,av,caut},W=[];
+ if(cond.length||$("#oth").value.trim())W.push("Tienes afecciones declaradas: consulta con tu médico antes de empezar. Ajusté la selección para evitar movimientos de riesgo, pero no reemplaza una evaluación profesional.");
+ if(cond.includes("hta")||cond.includes("cardio"))W.push("No contengas la respiración (exhala en el esfuerzo), evita llegar al fallo y suspende si hay mareo, dolor de pecho o falta de aire.");
+ if(cond.includes("diab"))W.push("Controla tu glucemia antes y después, ten a mano carbohidratos rápidos y evita entrenar en ayunas si usas insulina o hipoglucemiantes.");
+ if(cond.includes("asma"))W.push("Lleva tu inhalador y prefiere cardio de intensidad moderada con buen calentamiento.");
+ if(cond.includes("emb"))W.push("Evita posiciones boca arriba o boca abajo prolongadas y ejercicios de presión abdominal; mantén intensidad moderada (puedes hablar).");
+ if(cond.includes("osteo"))W.push("Evito flexión de columna con carga; prioriza técnica y progresión lenta.");
+ if(cond.includes("horm"))W.push("Con terapia hormonal la respuesta muscular puede variar: usa la estimación como guía y ajusta las cargas por sensaciones.");
+ if(bmi>=30)W.push("Con IMC elevado el cardio sugerido es de bajo impacto (caminata inclinada, bici, elíptica).");
+ if(age<18)W.push("Por tu edad, entrena con supervisión de un adulto o profesional y prioriza técnica sobre carga.");
+ if(d>=5)W.push("Con "+d+" días asegúrate de dormir bien y de alternar zonas; si notas fatiga acumulada, quita un día.");
+ const wk=WD[d].join(" · "),B=[build(S,0),build(S,1)],full=parts.includes("full");
+ const card=(t,b)=>`<div class="c"><h2>${t}</h2>${b}</div>`;
+ const cardio=goals.some(x=>["peso","res"].includes(x))?`<p class="tag">Final de sesión: ${goals[0]=="peso"?"15-20":"10-15"} min de cardio suave a moderado (bici, elíptica o caminata inclinada), ritmo en que puedas hablar entrecortado.</p>`:"";
+ const sess=(days)=>days.map((dy,i)=>{const t=Math.round(dy.rows.reduce((a,r)=>a+r.s*(40+r.rt),0)/60+8+(cardio?15:0)+4);
+  return card(`Día ${i+1} · ${WD[d][i]} <small class="tag">≈ ${t} min · ${dy.ps.map(p=>nm(p,O.parts)).join(", ")}</small>`,
+  `<p class="tag">Calentamiento: 5 min de cardio ligero + movilidad de cadera y hombros + 1 serie ligera del primer ejercicio.</p><div class="tb"><table><tr><th>Ejercicio</th><th>Series × reps</th><th>Carga inicial</th><th>Descanso</th><th>Esfuerzo</th></tr>${dy.rows.map(r=>`<tr><td><button class="lk" data-n="${r.x.n}" onclick="info(this.dataset.n)">${r.x.n} ⓘ</button></td><td>${r.s} × ${r.r}</td><td>${r.l}</td><td>${r.rt} s</td><td>Deja ${r.rir} rep en reserva</td></tr>`).join("")}</table></div>${cardio}<p class="tag">Cierre: 5 min de estiramiento suave.</p>`)}).join("");
+ const nxt=full?"el mismo enfoque de cuerpo completo con variantes de ejercicios nuevas (nuevos ángulos y patrones)":"nuevas variantes y se suman zonas complementarias para equilibrar el cuerpo ("+[...new Set(B[1].flatMap(x=>x.ps))].filter(p=>!parts.includes(p)).map(p=>nm(p,O.parts).toLowerCase()).join(", ")+")";
+ $("#out").innerHTML=card("Tu perfil",`<div class="k"><div><small>IMC</small><b>${bmi.toFixed(1)}</b></div><div><small>Masa magra est.</small><b>${lbm.toFixed(1)} kg</b></div><div><small>Masa muscular est.</small><b>${mus.toFixed(1)} kg</b></div><div><small>Grasa corporal est.</small><b>${fat.toFixed(0)} %</b></div></div><p class="tag">Estimación orientativa (fórmula de Boer, músculo esquelético ≈ 50 % de la masa magra, error ±10 %). Una bioimpedancia o DEXA es más precisa.</p>${W.map(x=>`<div class="w">${x}</div>`).join("")}`)+
+ card("Plan en el tiempo",`<p><b>Semanas 1-8 · Bloque 1:</b> repite esta rutina ${d} ${d>1?"veces":"vez"} por semana (${wk}). Solo cambian las cargas y repeticiones.</p><div class="tb"><table><tr><th>Semana</th><th>Qué hacer</th></tr><tr><td>1-2</td><td>Adaptación: técnica y cargas indicadas${lv==1?" (si te sobra, no subas aún)":""}</td></tr><tr><td>3-4</td><td>+1-2 repeticiones por serie, o +2,5-5 % de carga si llegas al máximo del rango</td></tr><tr><td>5-6</td><td>+5-10 % de carga o +1 serie en los ejercicios principales</td></tr><tr><td>7</td><td>Semana fuerte: llega a 1 repetición en reserva</td></tr><tr><td>8</td><td>Descarga: 60 % de las series y -10 % de carga para recuperar</td></tr></table></div>
+ <p><b>Semanas 9-16 · Bloque 2:</b> ${nxt}. Retoma con las cargas de la semana 5.</p><p><b>Semana 17:</b> mide peso y perímetros, repite este formulario y genera un nuevo plan.</p>`)+
+ `<div class="tabs np"><button class="on" data-b="0">Bloque 1 (sem. 1-8)</button><button data-b="1">Bloque 2 (sem. 9-16)</button><button class="o" onclick="print()">Imprimir</button></div><div id="b0">${sess(B[0])}</div><div id="b1" hidden>${sess(B[1])}</div>`;
+ document.querySelectorAll(".tabs [data-b]").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs [data-b]").forEach(x=>x.classList.toggle("on",x==b));$("#b0").hidden=b.dataset.b!="0";$("#b1").hidden=b.dataset.b!="1"});
+ $("#out").scrollIntoView({behavior:"smooth"})}
+// Técnica: posición y agarre | ejecución y qué sentir | error común
+const T={};`Sentadilla al aire|Pies al ancho de hombros, puntas algo abiertas, pecho arriba y brazos al frente.|Baja llevando la cadera atrás hasta que los muslos queden paralelos y sube empujando todo el pie. Debes sentir cuádriceps y glúteos.|Rodillas hacia adentro o talones que se levantan.
+Sentadilla a banco|Un banco detrás, a la altura de tus rodillas; pies al ancho de caderas.|Baja controlado hasta rozar el banco sin dejarte caer y sube. Sientes muslos y glúteos; es una opción amable con las rodillas.|Rebotar o sentarte de golpe en el banco.
+Zancada atrás|De pie, manos en la cintura o una mancuerna por mano.|Da un paso largo atrás y baja la rodilla trasera cerca del suelo; empuja con el talón delantero. Sientes glúteo y cuádriceps de la pierna que queda adelante.|Paso corto: la rodilla se adelanta demasiado.
+Sentadilla goblet|Sostén la pesa rusa contra el pecho agarrando los “cuernos” con ambas manos, codos pegados al torso.|Baja entre las rodillas con la espalda recta y sube. Sientes cuádriceps y glúteos; la pesa te ayuda a mantener el torso erguido.|Redondear la zona lumbar al bajar.
+Sentadilla goblet con mancuerna|Sostén una mancuerna vertical con ambas manos contra el pecho, codos hacia abajo.|Baja con el torso erguido hasta paralelo y sube empujando el suelo. Sientes cuádriceps y glúteos.|Dejar caer los codos y encorvarte.
+Sentadilla búlgara|Pie trasero apoyado en un banco, pie delantero a un paso largo; mancuernas a los lados.|Baja vertical hasta que el muslo delantero quede casi paralelo y sube con el talón. Sientes glúteo y cuádriceps de la pierna delantera.|Pie delantero demasiado cerca del banco.
+Sentadilla con barra|Barra apoyada sobre la parte alta de la espalda (no sobre el cuello), agarre un poco más ancho que los hombros, codos atrás.|Baja con el torso firme y el abdomen contraído hasta paralelo y sube. Sientes piernas, glúteos y core. Usa soportes de seguridad.|Dejar que el pecho caiga hacia delante.
+Prensa de piernas|Espalda y glúteos pegados al respaldo, pies al ancho de hombros en la plataforma.|Baja hasta unos 90° de rodilla y empuja sin estirar del todo las rodillas. Sientes cuádriceps y glúteos.|Despegar la cadera del asiento al bajar.
+Extensión de cuádriceps|Ajusta el respaldo para que la rodilla quede alineada con el eje de la máquina y el rodillo sobre los tobillos.|Extiende las piernas contrayendo el muslo arriba y baja lento. Sientes solo la parte delantera del muslo.|Usar impulso con la espalda.
+Curl femoral en máquina|Ajusta el rodillo sobre los tobillos, cadera pegada al asiento o camilla.|Flexiona llevando los talones hacia los glúteos y vuelve lento. Sientes la parte posterior del muslo.|Levantar la cadera para ayudarte.
+Peso muerto rumano con mancuernas|Mancuernas frente a los muslos, rodillas ligeramente flexionadas, espalda neutra.|Lleva la cadera hacia atrás y baja las mancuernas pegadas a las piernas hasta sentir tensión detrás del muslo; sube apretando glúteos. Sientes femorales y glúteos.|Redondear la espalda o flexionar mucho las rodillas.
+Peso muerto rumano con barra|Agarre por fuera de las piernas, de pie con la barra en los muslos.|Cadera atrás y barra pegada a las piernas hasta la mitad de la espinilla; sube apretando glúteos. Sientes femorales y glúteos.|Separar la barra del cuerpo.
+Peso muerto con barra|Barra sobre el medio del pie, agarre justo fuera de las piernas, hombros sobre la barra, espalda recta.|Empuja el suelo con las piernas y estira la cadera; baja con control. Sientes glúteos, femorales y espalda. Aprende la técnica con poco peso.|Tirar con la espalda en lugar de empujar con las piernas.
+Puente de glúteos|Boca arriba, rodillas dobladas, pies cerca de los glúteos.|Sube la cadera apretando los glúteos arriba 1 segundo y baja lento. Sientes glúteos.|Arquear la zona lumbar en lugar de usar el glúteo.
+Hip thrust con mancuerna|Espalda alta apoyada en un banco; mancuerna sobre la cadera, sujeta con ambas manos.|Sube la cadera hasta alinear rodillas, cadera y hombros; mentón al pecho y aprieta glúteos. Sientes glúteos.|Hiperextender la espalda arriba.
+Hip thrust con kettlebell|Espalda alta en un banco; pesa rusa sobre la cadera, sujeta con ambas manos.|Sube la cadera apretando glúteos y baja controlado. Sientes glúteos.|Pies demasiado lejos: se carga el femoral.
+Hip thrust con barra|Espalda alta en un banco, barra con almohadilla sobre la cadera, agarre ancho.|Sube hasta alinear rodillas, cadera y hombros y aprieta glúteos. Sientes glúteos intensamente.|Subir demasiado y arquear la lumbar.
+Patada de glúteo con banda|En cuadrupedia con la banda alrededor de los pies o sobre las rodillas.|Empuja un pie hacia el techo con la rodilla doblada, sin girar la cadera. Sientes el glúteo trabajando.|Balancear la espalda baja.
+Patada de glúteo en polea|Tobillera en un pie, apoya las manos en la máquina y inclina un poco el torso.|Lleva la pierna atrás con el glúteo, sin arquear la espalda, y vuelve lento. Sientes glúteo.|Usar impulso y arquear la zona lumbar.
+Abducción de cadera en máquina|Sentado con la espalda apoyada y las almohadillas por fuera de las rodillas.|Abre las piernas llevando las rodillas hacia fuera y vuelve lento. Sientes el glúteo lateral (zona de la cadera). Inclinar el torso adelante enfatiza el glúteo.|Rebotar con peso excesivo.
+Caminata lateral con banda|Banda sobre las rodillas o tobillos, rodillas ligeramente flexionadas.|Da pasos laterales manteniendo tensión constante en la banda. Sientes la parte lateral del glúteo.|Dejar que las rodillas se cierren.
+Swing con kettlebell|Pesa rusa entre los pies, agárrala con ambas manos, cadera atrás, espalda neutra.|Empuja la cadera adelante como un salto vertical y la pesa sube sola hasta el pecho. Sientes glúteos y femorales, no los brazos.|Levantar la pesa con los hombros o hacer una sentadilla.
+Flexiones inclinadas (manos en banco)|Manos en un banco más anchas que los hombros, cuerpo recto de cabeza a talones.|Baja el pecho hacia el banco con codos a ~45° del torso y empuja. Sientes pecho y tríceps.|Dejar caer la cadera.
+Flexiones|Manos bajo los hombros o algo más anchas, cuerpo recto, abdomen firme.|Baja hasta casi tocar el suelo con codos a ~45° y sube. Sientes pecho, hombro frontal y tríceps.|Abrir los codos a 90° (carga el hombro).
+Press de pecho en suelo con mancuernas|Boca arriba, rodillas dobladas, mancuernas con las palmas hacia los pies sobre el pecho.|Baja hasta que los codos rocen el suelo y empuja hacia arriba. Sientes pecho y tríceps.|Dejar los codos muy abiertos.
+Press de banca con barra|Escápulas juntas y abajo, pies firmes, agarre un poco más ancho que los hombros, muñecas rectas.|Baja la barra a la parte baja del pecho y empuja. Sientes pecho, hombro frontal y tríceps. Pide ayuda de un spotter.|Rebotar la barra en el pecho o levantar la cadera.
+Press de pecho en máquina|Ajusta el asiento para que los agarres queden a la altura del pecho; espalda pegada.|Empuja sin bloquear los codos y vuelve lento. Sientes pecho; si altura es muy alta, trabaja más hombro.|Encoger los hombros hacia las orejas.
+Aperturas con mancuernas|Banco o suelo, mancuernas arriba con codos ligeramente flexionados y palmas enfrentadas.|Abre en arco hasta sentir el estiramiento del pecho y vuelve como un abrazo. Sientes la parte interna del pecho.|Bajar demasiado o convertirlo en un press.
+Press de pecho con banda|Banda detrás de la espalda alta, sujeta con ambas manos a la altura del pecho.|Empuja al frente estirando los brazos y vuelve lento. Sientes pecho y tríceps.|Elevar los hombros.
+Remo con mancuerna|Una mano y rodilla en un banco, espalda paralela al suelo, mancuerna colgando bajo el hombro.|Tira del codo hacia la cadera, no hacia el techo; aprieta la escápula. Sientes dorsal y parte media de la espalda, no el bíceps.|Girar el torso para subir el peso.
+Remo con kettlebell|Una mano apoyada en un banco, espalda recta; agarra la pesa por el asa.|Lleva el codo hacia la cadera y aprieta la escápula. Sientes dorsal y espalda media.|Tirar con el brazo y no con la espalda.
+Remo con banda|Sentado con las piernas estiradas y la banda en los pies, o fijada a una puerta; agarra con ambas manos.|Tira de los codos hacia atrás juntando las escápulas. Sientes la espalda media.|Encorvar los hombros hacia delante.
+Jalón al pecho|Muslos bajo los rodillos, agarre algo más ancho que los hombros, torso levemente inclinado atrás.|Tira de la barra a la altura de la clavícula llevando los codos hacia abajo y atrás. Sientes dorsales (a los lados de la espalda).|Tirar de la nuca o usar impulso.
+Remo en máquina|Pecho apoyado en el soporte, agarres a la altura del pecho.|Tira de los codos hacia atrás juntando escápulas y vuelve lento. Sientes espalda media y dorsales.|Despegar el pecho del soporte.
+Remo con barra|Rodillas flexionadas, torso inclinado a ~45°, espalda neutra, agarre por fuera de las piernas.|Lleva la barra hacia el abdomen con codos pegados. Sientes dorsal y espalda media; requiere una lumbar firme.|Subir y bajar el torso para ayudarte.
+Dominadas con banda|Agarre más ancho que los hombros; banda bajo las rodillas o pies como asistencia.|Sube llevando el pecho a la barra con codos hacia abajo y baja controlado. Sientes dorsales y bíceps.|Balancearte.
+Superman|Boca abajo, brazos estirados al frente.|Eleva brazos y piernas a la vez sin forzar el cuello y mantén 1-2 s. Sientes lumbar y glúteos.|Mirar hacia arriba y hacer hiperextensión.
+Press militar con mancuernas|De pie o sentado, mancuernas a la altura de los hombros, abdomen firme.|Empuja hacia arriba sin arquear la espalda y baja controlado. Sientes hombros y tríceps.|Arquear la zona lumbar.
+Elevaciones laterales|Mancuernas a los lados, codos ligeramente flexionados, torso estable.|Sube los brazos hasta la altura de los hombros como si vertieras una jarra, sin subir los hombros. Sientes la parte lateral del hombro.|Usar mucho peso y balancearte.
+Face pull con banda|Banda a la altura de la cara, agarre con las palmas hacia ti.|Tira hacia la cara separando las manos y abriendo los codos. Sientes la parte posterior del hombro y la espalda alta.|Inclinar el cuerpo hacia atrás.
+Pike push-up|Posición de “V” invertida, manos algo más anchas que los hombros, caderas altas.|Baja la cabeza entre las manos y empuja. Sientes hombros y tríceps.|Dejar la cadera baja y convertirlo en flexión.
+Press de hombros en máquina|Asiento a la altura que deje las empuñaduras a los hombros, espalda apoyada.|Empuja hacia arriba sin bloquear los codos. Sientes hombros y tríceps.|Encoger los hombros.
+Curl de bíceps con mancuernas|De pie, palmas hacia delante, codos pegados al torso.|Sube las mancuernas girando la muñeca y baja lento. Sientes el bíceps.|Balancear el cuerpo.
+Curl martillo con kettlebell|Agarra la pesa por el asa con las palmas enfrentadas, codos pegados.|Sube sin mover los codos y baja lento. Sientes el bíceps y el antebrazo.|Mover los hombros para ayudarte.
+Curl de bíceps con banda|Pisa la banda con ambos pies, agarre con las palmas arriba.|Sube las manos hacia los hombros con los codos fijos. Sientes el bíceps.|Soltar tensión abajo.
+Fondos en silla|Manos en el borde de una silla estable, pies adelante, cadera cerca de la silla.|Baja doblando los codos hacia atrás hasta unos 90° y sube. Sientes tríceps.|Abrir los codos o bajar demasiado (carga el hombro).
+Extensión de tríceps en polea|Cuerda o barra alta, codos pegados al cuerpo, torso ligeramente inclinado.|Estira los codos hacia abajo y vuelve lento. Sientes el tríceps.|Despegar los codos.
+Extensión de tríceps con banda|Banda fijada arriba o pasada tras la espalda; codos pegados.|Estira los codos y vuelve lento. Sientes el tríceps.|Mover los hombros.
+Plancha|Antebrazos bajo los hombros, cuerpo recto, glúteos y abdomen contraídos.|Mantén sin dejar caer la cadera y respirando. Sientes abdomen profundo, no la lumbar.|Cadera caída o demasiado alta.
+Dead bug|Boca arriba, brazos al techo, rodillas a 90°, lumbar pegada al suelo.|Baja brazo y pierna contrarios lentamente sin despegar la lumbar. Sientes abdomen profundo.|Arquear la espalda baja.
+Bird dog|En cuadrupedia con espalda neutra.|Estira brazo y pierna contrarios y mantén 2 s sin girar la cadera. Sientes core y glúteo.|Rotar la cadera.
+Crunch|Boca arriba, rodillas dobladas, manos junto a las sienes.|Eleva solo los hombros contrayendo el abdomen y baja lento. Sientes el recto abdominal.|Tirar del cuello.
+Elevación de piernas|Boca arriba, manos bajo los glúteos, lumbar pegada.|Sube las piernas casi rectas y baja sin tocar el suelo. Sientes abdomen bajo.|Arquear la lumbar al bajar.
+Pallof press con banda|Banda lateral a la altura del pecho, de pie y firme, manos en el pecho.|Estira los brazos al frente resistiendo la rotación y vuelve. Sientes el core oblicuo.|Dejar que el torso gire.
+Plancha lateral|Antebrazo bajo el hombro, cuerpo en línea recta de lado.|Mantén la cadera arriba y estable. Sientes oblicuos y glúteo medio.|Dejar caer la cadera.
+Leñador con mancuerna|De pie, mancuerna con ambas manos junto a una cadera.|Lleva la mancuerna en diagonal hacia el hombro opuesto girando el torso y pivotando el pie. Sientes oblicuos.|Girar solo los brazos.
+Cat-cow|En cuadrupedia, manos bajo los hombros y rodillas bajo la cadera.|Alterna arquear y redondear la columna respirando lento. Sientes movilidad de la columna.|Hacerlo rápido.
+Rotación torácica en cuadrupedia|En cuadrupedia, una mano detrás de la cabeza.|Gira llevando el codo hacia el techo siguiendo con la mirada. Sientes movilidad de la espalda media.|Mover la lumbar en lugar de la espalda alta.
+Estiramiento de flexores de cadera|En posición de zancada con rodilla trasera apoyada (usa una almohadilla).|Empuja la cadera adelante y aprieta el glúteo de la pierna atrás. Sientes estiramiento en el frente de la cadera.|Arquear la espalda.
+Posición 90/90 de cadera|Sentado, ambas rodillas dobladas a 90° hacia un mismo lado.|Mantén el torso alto y gira lentamente. Sientes rotación de cadera.|Forzar el rango con dolor.
+Movilidad de hombros con banda|De pie con una banda tensa entre ambas manos, brazos estirados.|Pasa los brazos sobre la cabeza hacia atrás y vuelve lento. Sientes movilidad del hombro.|Doblar los codos.
+Sentadilla profunda con apoyo|Agárrate de un poste o pared, pies algo abiertos.|Baja hasta el fondo con el torso erguido y mantén. Sientes movilidad de cadera y tobillo.|Despegar los talones.`.split("\n").forEach(l=>{const[n,a,b,c]=l.split("|");T[n]={a,b,c}});
+const EQN={c:"Peso corporal (sin material)",m:"Mancuernas",k:"Pesa rusa",g:"Banda elástica",b:"Barra y discos",q:"Máquina o polea"};
+function info(n){const x=D.find(z=>z.n==n),t=T[n]||{a:"Busca una demostración y empieza con poco peso.",b:"Controla el movimiento.",c:"Evitar el dolor articular."},q=encodeURIComponent(n+" técnica ejercicio");
+ $("#dc").innerHTML=`<h3>${n}</h3><p class="tag">Material: ${EQN[x.e]} · Zona: ${x.p.map(p=>nm(p,O.parts)).join(", ")}</p><h4>Posición, agarre y material</h4><p>${t.a}</p><h4>Ejecución y qué debes sentir</h4><p>${t.b}</p><h4>Error común</h4><p>${t.c}</p><p style="margin-top:12px"><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q=${q}">Ver imágenes</a><a target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=${q}">Ver video</a></p>`;$("#dl").showModal()}
+// Nuevo reparto: una zona por día para recuperar mejor
+function build(S,v){const sel=S.parts.includes("full")?null:new Set(v?S.parts.flatMap(p=>[p,CP[p]].filter(Boolean)):S.parts),ok=p=>!sel||sel.has(p),A=["pecho","hombros","brazos"],B=["piernas","gluteos"],C=["espalda","core"];
+ let G=S.d==1?[RK.slice(0,6)]:S.d==2?[["pecho","espalda","hombros","brazos"],["piernas","gluteos","core"]]:[B,A,C];
+ G=G.map(g=>g.filter(ok)).filter(g=>g.length);if(!G.length)G=[["core","gluteos"]];
+ if(sel&&S.d>2){const n=g=>g.filter(p=>S.parts.includes(p)).length;G.sort((a,b)=>n(b)-n(a))}
+ const cnt={},days=[];
+ for(let k=0;k<S.d;k++){const ps=G[k%G.length],used=new Set(),ex=[],epp=Math.min(4,Math.max(1,Math.round(6/ps.length)));
+  if(S.parts.includes("movilidad")||S.goals[0]=="mov"){const m=pick("movilidad",S,used,cnt,v);if(m)ex.push(m)}
+  ps.forEach(p=>{for(let i=0;i<epp;i++){const x=pick(p,S,used,cnt,v);if(x)ex.push(x)}});
+  const f0=ex.findIndex(e=>e.p[0]!="movilidad");
+  days.push({ps,rows:ex.map((x,i)=>{const g=x.p[0]=="movilidad"?"mov":(i==f0||ex.length<3?S.goals[0]:S.goals[1]||S.goals[0]);let[s,r,rt,rir]=SC[g];
+   if(g!="mov"){const comp=x.f>=.5||x.e=="b"||/Sentadilla|Peso muerto|Press|Remo|Dominadas|Zancada|Hip thrust|Flexiones|Jalón|Prensa/.test(x.n);s=comp&&!(S.lv==1&&x.e=="b")?4:3;if(S.caut)s=Math.min(s,3)}
+   if(S.caut&&g=="fuerza"){r="8-10";rt=120;rir=3}
+   if(/Plancha|Dead|Bird|Pallof/i.test(x.n)&&x.p[0]=="core")r="30-45 s";
+   return{x,s,r,rt,rir,l:load(x,S)}})})}
+ return days}
+$("#go").onclick=go;
+</script></body></html>
